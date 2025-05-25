@@ -56,29 +56,6 @@ def authenticate(username, password):
         return verify_password(stored_hash, password)
     return False
 
-
-# 检查会话状态
-def check_session():
-    # 从URL参数获取会话信息
-    query_params = st.query_params.to_dict()
-
-    if "auth" in query_params and "user" in query_params:
-        auth_token = query_params["auth"]
-        username = query_params["user"]
-
-        # 验证会话是否有效
-        if username in users_db:
-            # 检查session state中的token是否匹配
-            if "auth_token" in st.session_state and st.session_state["auth_token"] == auth_token:
-                # 检查会话是否超时（30分钟）
-                current_time = time.time()
-                last_activity = st.session_state.get("last_activity", 0)
-                if current_time - last_activity < 1800:  # 30分钟
-                    st.session_state["last_activity"] = current_time
-                    return True
-    return False
-
-
 def login_page():
     # 使用columns创建居中布局
     col1, col2, col3 = st.columns([1, 2, 1])  # 左右留白，中间内容区域
@@ -120,14 +97,6 @@ def login_page():
                         st.session_state["authenticated"] = True
                         st.session_state["username"] = username
                         st.session_state["role"] = users_db[username]["role"]
-                        st.session_state["last_activity"] = time.time()
-
-                        # 生成并存储auth token
-                        auth_token = f"{username}_{time.time()}"
-                        st.session_state["auth_token"] = auth_token
-                        # 设置URL参数保持会话
-                        st.query_params["auth"] = auth_token
-                        st.query_params["user"] = username
                         st.rerun()
                     else:
                         st.error("用户名或密码错误")
@@ -468,8 +437,9 @@ if __name__ == "__main__":
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
     # 检查会话状态
-    if check_session():
+    if st.session_state.get("authenticated"):
         main_app()
+
         # 添加左下角作者信息
         st.sidebar.markdown(
             """
@@ -497,3 +467,4 @@ if __name__ == "__main__":
         if "authenticated" in st.session_state:
             del st.session_state["authenticated"]
         login_page()
+        
