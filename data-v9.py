@@ -180,19 +180,19 @@ def show_analysis(uploaded_file):
         if time_group == "日":
             time_df = df.groupby(df['购买日期'].dt.date)['总价'].sum().reset_index()
         elif time_group == "周":
-            time_df = df.groupby(['year', 'week'])['总价'].sum().reset_index()
-            time_df['date_label'] = time_df['year'].astype(str) + '-W' + time_df['week'].astype(str)
+            time_df = df.groupby(['年', '周'])['总价'].sum().reset_index()
+            time_df['date_label'] = time_df['年'].astype(str) + '-W' + time_df['周'].astype(str)
         elif time_group == "月":
-            time_df = df.groupby(['year', 'month'])['总价'].sum().reset_index()
-            time_df['date_label'] = time_df['year'].astype(str) + '-' + time_df['month'].astype(str).str.zfill(2)
+            time_df = df.groupby(['年', '月'])['总价'].sum().reset_index()
+            time_df['date_label'] = time_df['年'].astype(str) + '-' + time_df['月'].astype(str).str.zfill(2)
         elif time_group == "季":
             time_df = df.copy()
-            time_df['quarter'] = time_df['购买日期'].dt.quarter
-            time_df = time_df.groupby(['year', 'quarter'])['总价'].sum().reset_index()
-            time_df['date_label'] = time_df['year'].astype(str) + '-Q' + time_df['quarter'].astype(str)
+            time_df['季'] = time_df['购买日期'].dt.quarter
+            time_df = time_df.groupby(['年', '季'])['总价'].sum().reset_index()
+            time_df['date_label'] = time_df['年'].astype(str) + '-Q' + time_df['季'].astype(str)
         else:  # 年
-            time_df = df.groupby('year')['总价'].sum().reset_index()
-            time_df['date_label'] = time_df['year'].astype(str)
+            time_df = df.groupby('年')['总价'].sum().reset_index()
+            time_df['date_label'] = time_df['年'].astype(str)
 
         fig = px.line(time_df,
                       x='date_label' if time_group != "日" else '购买日期',
